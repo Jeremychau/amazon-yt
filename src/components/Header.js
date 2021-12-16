@@ -1,12 +1,21 @@
 import Image from 'next/image'
 import { MenuIcon, SearchIcon, ShoppingCartIcon } from "@heroicons/react/outline"
+import { signIn, signOut, useSession } from "next-auth/client";
+import { useRouter } from "next/router"
+import { useSelector } from 'react-redux';
+import { selectItems } from '../slices/basketSlice';
 
 function Header() {
+    const [session] = useSession();
+    const router = useRouter();
+    const basketItem = useSelector(selectItems)
+
     return (
         <header>
             <div className="flex flex-grow items-center bg-amazon_blue p-1 py-2">
                 <div className="mt-2 flex items-center flex-grow sm:flex-grow-0">
                     <Image
+                        onClick={() => router.push('/')}
                         className="cursor-pointer"
                         src="https://links.papareact.com/f90"
                         width={150}
@@ -23,16 +32,20 @@ function Header() {
                     <SearchIcon className="h-12 p-4" />
                 </div>
                 <div className="text-white flex items-center text-xs space-x-6 mx-6  whitespace-nowrap">
-                    <div className="link">
-                        <p>Hello Kobe</p>
+                    <div onClick={ !session? signIn : signOut} className="cursor-pointer link">
+                        <p className="hover:underline">
+                            { session ? `Hello, ${session.user.name}` : "Sign In" }
+                        </p>
                         <p className="headerOption">Account & List</p>
                     </div>
-                    <div className="link">
+                    <div className="cursor-pointer link">
                         <p>Returns</p>
                         <p className="headerOption">& Orders</p>
                     </div>
-                    <div className="relative link flex items-center">
-                        <span className="absolute top-0 right-0 md:right-10 h-4 w-4 bg-yellow-400 text-center text-black rounded-full font-bold">4</span>
+                    <div onClick={() => router.push('/checkout')} className="relative link flex items-center">
+                        <span className="absolute top-0 right-0 md:right-10 h-4 w-4 bg-yellow-400 text-center text-black rounded-full font-bold">
+                            {basketItem.length}
+                        </span>
                         <ShoppingCartIcon className="h-10" />
                         <p className="headerOption hidden md:inline mt-2">Basket</p>
                     </div>
